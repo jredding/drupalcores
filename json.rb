@@ -1,5 +1,15 @@
 #!/usr/bin/env ruby
 
+drupal_version = ARGV[0] || '8.x'
+
+if drupal_version == '8.x'
+  log_args = ARGV[1] || '--since=2011-03-09'
+else
+  log_args = ARGV[1] || ''
+end
+  
+
+
 Encoding.default_external = Encoding::UTF_8
 require 'erb'
 require 'yaml'
@@ -7,7 +17,10 @@ require 'json'
 
 name_mappings = YAML::load_file('./name_mappings.yml')
 contributors = Hash.new(0)
-%x[git --git-dir=drupal/.git --work-tree=drupal log 8.x --since=2011-03-09 -s --format=%s].split("\n").each do |m|
+git_command = 'git --git-dir=drupal_' + drupal_version + '/.git --work-tree=drupal log ' +  drupal_version + ' ' +  log_args + ' -s --format=%s'
+
+
+%x[#{git_command}].split("\n").each do |m|
   m.gsub(/\-/, '_').scan(/\s(?:by\s?)([[:word:]\s,.|]+):/i).each do |people|
     people[0].split(/[,|]/).each do |p|
       name = p.strip.downcase

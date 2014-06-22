@@ -1,5 +1,16 @@
 #!/usr/bin/env ruby
 
+
+drupal_version = ARGV[0] || '8.x'
+
+if drupal_version == '8.x'
+  log_args = ARGV[1] || '--since=2011-03-09'
+else
+  log_args = ARGV[1] || ''
+end
+
+git_command = 'git --git-dir=drupal_' + drupal_version + '/.git --work-tree=drupal log ' +  drupal_version + ' ' +  log_args + ' -s --format=%s'
+
 Encoding.default_external = Encoding::UTF_8
 require 'erb'
 require 'yaml'
@@ -31,7 +42,7 @@ end
 i = 1;
 lastOrder = -1;
 lastMentions = 0;
-%x[git --git-dir=drupal/.git --work-tree=drupal log 8.x --since=2011-03-09 -s --format=%s].split("\n").each do |m|
+%x[#{git_command}].split("\n").each do |m|
   m.scan(/\s(?:by\s?)([[:word:]\s,.|]+):/i).each do |people|
     people[0].split(/(?:,|\||\band\b|\bet al(?:.)?)/).each do |p|
       name = p.gsub(/\-/, '_').strip.downcase
@@ -155,17 +166,17 @@ __END__
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
   <title>DrupalCores</title>
-  <meta name="description" content="A simple list of all contributors to Drupal 8 core">
+  <meta name="description" content="A simple list of all contributors to Drupal <%= drupal_version %> core">
   <meta name="author" content="Eric J. Duran">
   <link type="text/plain" rel="author" href="http://ericduran.github.com/drupalcores/humans.txt" />
-  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="../stylesheets/stylesheet.css">
 </head>
 <body>
     <div id="header_wrap" class="outer">
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/ericduran/drupalcores">View on GitHub</a>
           <h1 id="project_title">DrupalCores</h1>
-          <h2 id="project_tagline">A very basic table of all companies with contributors to Drupal 8 Core</h2>
+          <h2 id="project_tagline">A very basic table of all companies with contributors to Drupal <%= drupal_version %> Core</h2>
         </header>
     </div>
 
